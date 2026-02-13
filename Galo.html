@@ -9,24 +9,87 @@ body {
     margin: 0;
     padding: 0;
     height: 100vh;
-    background: linear-gradient(135deg, #1e1e2f, #2c2c54);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    overflow: hidden;
+    background: radial-gradient(circle at top, #1c1c2e, #0f0f1a 70%);
     font-family: "Georgia", serif;
     color: white;
 }
 
+/* 🌌 Stars */
+.stars {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    overflow: hidden;
+}
+
+.star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    opacity: 0.8;
+    animation: twinkle 2s infinite alternate;
+}
+
+@keyframes twinkle {
+    from { opacity: 0.2; }
+    to { opacity: 1; }
+}
+
+/* 🌙 Moon glow */
+.moon {
+    position: absolute;
+    top: 80px;
+    right: 120px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff 0%, #ddd 40%, transparent 70%);
+    box-shadow: 0 0 60px 25px rgba(255,255,255,0.2);
+    animation: glow 4s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { box-shadow: 0 0 50px 20px rgba(255,255,255,0.15); }
+    to { box-shadow: 0 0 80px 35px rgba(255,255,255,0.25); }
+}
+
+/* 🐺 Wolf silhouette */
+.wolf {
+    position: absolute;
+    bottom: 0;
+    left: 40px;
+    width: 250px;
+    opacity: 0.08;
+}
+
+/* Card */
 .card {
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 2;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(12px);
     padding: 60px 70px;
     border-radius: 25px;
     text-align: center;
     width: 80%;
     max-width: 650px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    margin: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+}
+
+/* Fade transition */
+.fade {
     animation: fadeIn 1s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 h1, h2 {
@@ -53,63 +116,82 @@ button {
 button:hover {
     transform: scale(1.08);
 }
-
-.buttons {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-}
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="stars" id="stars"></div>
+<div class="moon"></div>
+
+<!-- Use any wolf PNG silhouette here -->
+<img src="wolf.png" class="wolf">
+
+<audio id="bgMusic" src="mystic.mp3" loop></audio>
+
+<div class="card fade">
     <div id="content"></div>
 </div>
 
 <script>
 const content = document.getElementById("content");
+const music = document.getElementById("bgMusic");
+
+/* 🌌 Generate Stars */
+for (let i = 0; i < 120; i++) {
+    let star = document.createElement("div");
+    star.className = "star";
+    star.style.top = Math.random() * 100 + "%";
+    star.style.left = Math.random() * 100 + "%";
+    star.style.animationDuration = (1 + Math.random() * 3) + "s";
+    document.getElementById("stars").appendChild(star);
+}
+
+/* 🎵 Start mystical music on first interaction */
+document.addEventListener("click", () => {
+    music.volume = 0.25;
+    music.play().catch(()=>{});
+}, { once: true });
+
+function changeScreen(html) {
+    content.classList.remove("fade");
+    void content.offsetWidth;
+    content.innerHTML = html;
+    content.classList.add("fade");
+}
 
 renderScreen1();
 
 function renderScreen1() {
-    content.innerHTML = `
+    changeScreen(`
         <h1>Isa… dicen que los lobos no aúllan sin razón. 🐺🌙</h1>
-        <div class="buttons">
-            <button onclick="why()">¿Por qué?</button>
-            <button onclick="tell()">Cuéntame.</button>
-        </div>
-    `;
+        <button onclick="why()">¿Por qué?</button>
+        <button onclick="tell()">Cuéntame.</button>
+    `);
 }
 
 function why() {
-    content.innerHTML = `
+    changeScreen(`
         <p class="message">
         Porque cuando un lobo reconoce a su luna,
         entiende que el silencio ya no es suficiente.
         </p>
         <button onclick="renderScreen2()">Seguir…</button>
-    `;
+    `);
 }
 
 function tell() {
-    content.innerHTML = `
+    changeScreen(`
         <p class="message">
         Porque hay lunas que merecen ser miradas sin miedo
         y nombradas en voz alta.
         </p>
         <button onclick="renderScreen2()">Seguir…</button>
-    `;
+    `);
 }
 
 function renderScreen2() {
-    content.innerHTML = `
+    changeScreen(`
         <h2>El secreto del lobo 🐺</h2>
         <p class="message">
         Hay lobos que caminan en silencio…
@@ -117,11 +199,11 @@ function renderScreen2() {
         empiezan a aullar con el corazón.
         </p>
         <button onclick="renderScreen3()">Continuar…</button>
-    `;
+    `);
 }
 
 function renderScreen3() {
-    content.innerHTML = `
+    changeScreen(`
         <h2>El viaje del caballero ⚔️</h2>
         <p class="message">
         Todo caballero atraviesa tormentas…
@@ -129,11 +211,11 @@ function renderScreen3() {
         hacia dónde late su destino.
         </p>
         <button onclick="renderScreen4()">Seguir…</button>
-    `;
+    `);
 }
 
 function renderScreen4() {
-    content.innerHTML = `
+    changeScreen(`
         <h2>La princesa Atenea 👑</h2>
         <p class="message">
         Porque incluso en la distancia,
@@ -142,18 +224,18 @@ function renderScreen4() {
         que merece celebrarse.
         </p>
         <button onclick="renderScreen5()">Un paso más…</button>
-    `;
+    `);
 }
 
 function renderScreen5() {
-    content.innerHTML = `
+    changeScreen(`
         <h2>Nuestra leyenda ✨</h2>
         <p class="message">
         Feliz San Valentín, Isa ❤️<br><br>
         El lobo ya está en camino hacia su luna… 🌙<br>
         y pronto celebraremos nuestra historia juntos.
         </p>
-    `;
+    `);
 }
 </script>
 
